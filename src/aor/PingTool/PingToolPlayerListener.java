@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -40,24 +39,48 @@ public class PingToolPlayerListener implements Listener {
 			if (targetBlock.getBlock().getType() != Material.AIR) // No pinging midair!
 			{
 				event.setCancelled(true);
-				if(!replacedBlocks.contains(targetBlock)){
-					replacedBlocks.add(targetBlock);//store the block location
-					//replacedBlocksState.add(targetBlock.getState());
-				}
-				else{
-					int replacedBlockIndex = replacedBlocks.indexOf(targetBlock);
-					replacedBlocks.add(replacedBlocks.get(replacedBlockIndex));//store the block
-					//replacedBlocksState.add(replacedBlocksState.get(replacedBlockIndex));
-				}
-				for(Player p : plugin.getServer().getOnlinePlayers()) {
-					p.sendBlockChange(targetBlock, itemInHand.getItemTypeId(), itemInHand.getData()); // Turn it to the wool player was holding!
-					plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-						public void run() {
-							replaceBlock();
-						}
-					}, 20L);
-				}
+				pingBlock(plugin.getServer().getOnlinePlayers(), targetBlock, itemInHand.getItemTypeId(), itemInHand.getData(), (targetBlock == event.getClickedBlock() ? 2L : 0L), 20L);
 			}
+		}
+	}
+	
+	public void pingBlock(final Player[] hallucinators, final Location blockLocation, final int material, final byte data, long initialDelay, long fakeBlockTimeSpan) {
+		plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
+			@Override
+			public void run() {
+				fakeBlock(hallucinators, blockLocation, material, data);
+			}
+		}, initialDelay);
+		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+			public void run() {
+				replaceBlock();
+			}
+		}, initialDelay+fakeBlockTimeSpan);
+		if(!replacedBlocks.contains(blockLocation)){
+			replacedBlocks.add(blockLocation);//store the block location
+		}
+		else{
+			int replacedBlockIndex = replacedBlocks.indexOf(blockLocation);
+			replacedBlocks.add(replacedBlocks.get(replacedBlockIndex));//store the block
+		}
+	}
+	
+	/**
+	 * This causes a block that does not necessarily exist at
+	 * blockLocation to seem to exist there by players in the
+	 * array of players given until a block update occurs.
+	 * 
+	 * This differs from pingBlock() by not forcing an update
+	 * after a certain amount of time has passed so a faked
+	 * block can remain indefinitely
+	 */
+	public void fakeBlock(Player[] hallucinators, Location blockLocation, int material, byte data) {
+		for(Player p : hallucinators) {
+			if(!p.isOnline()) {
+				plugin.getLogger().fine("[PingPlugin] Trying to hallucinate to Player " + p + " who is not online");
+				continue;
+			}
+			p.sendBlockChange(blockLocation, material, data); // Turn it to the given block
 		}
 	}
 }
