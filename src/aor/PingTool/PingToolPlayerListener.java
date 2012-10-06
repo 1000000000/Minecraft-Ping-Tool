@@ -22,13 +22,10 @@ public class PingToolPlayerListener implements Listener {
 		plugin = instance;
 	}
 
-	@Deprecated
-	@SuppressWarnings("all")
 	public static void replaceBlock(){
-		//put the block back in world
-		BlockState blockState = null;//replacedBlocksState.remove(0);
-		if(!replacedBlocks.contains(replacedBlocks.remove(0))){
-			blockState.update(true); //forces existing block to become the block represented by blockState
+		Location pingLocation = replacedBlocks.remove(0);
+		if(!replacedBlocks.contains(pingLocation)){
+			pingLocation.getBlock().getState().update(false); //forces existing block to become the block represented by blockState
 		}
 	}
 
@@ -54,11 +51,11 @@ public class PingToolPlayerListener implements Listener {
 				}
 				for(Player p : plugin.getServer().getOnlinePlayers()) {
 					p.sendBlockChange(targetBlock, itemInHand.getItemTypeId(), itemInHand.getData()); // Turn it to the wool player was holding!
-					/*plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+					plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 						public void run() {
 							replaceBlock();
 						}
-					}, 20L);*/
+					}, 20L);
 				}
 			}
 		}
