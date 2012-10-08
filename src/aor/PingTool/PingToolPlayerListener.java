@@ -45,7 +45,7 @@ public class PingToolPlayerListener implements Listener {
 	}
 	
 	public void pingBlock(final Player[] hallucinators, final Location blockLocation, final int material, final byte data, long initialDelay, long fakeBlockTimeSpan) {
-		plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
+		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 			@Override
 			public void run() {
 				fakeBlock(hallucinators, blockLocation, material, data);
