@@ -1,5 +1,8 @@
 package aor.PingTool; //Your package
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -10,6 +13,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 
 public class PingTool extends JavaPlugin {
+	
+	public static final List<Byte> UNPINGABLE_BLOCKS = Arrays.asList(new Byte[]{
+		0, //air
+		8, //water source
+		9, //water flow
+		10, //lava source
+		11, //lava flow
+	});
 
     //ClassListeners
 	private final PingToolPlayerListener playerListener = new PingToolPlayerListener(this);
