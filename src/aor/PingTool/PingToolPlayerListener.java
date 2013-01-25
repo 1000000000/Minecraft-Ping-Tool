@@ -11,6 +11,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.material.Dye;
 import org.bukkit.material.MaterialData;
 
 public class PingToolPlayerListener implements Listener {	
@@ -31,13 +32,20 @@ public class PingToolPlayerListener implements Listener {
 			blockState.update(true); //forces existing block to become the block represented by blockState
 		}
 	}
+	
+	public static void updateBlock() {
+		Location blockLoc = replacedBlocks.remove(0);
+		if(!replacedBlocks.contains(blockLoc)){
+			blockLoc.getBlock().getState().update();
+		}
+	}
 
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event){
 		Player player = event.getPlayer();
 		MaterialData itemInHand = player.getItemInHand().getData();
 		// Left clicking air or a block event:
-		if ((event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) && itemInHand.getItemType() == Material.WOOL) // If they left clicked with wool.
+		if ((event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) && itemInHand.getItemType() == Material.INK_SACK) // If they right clicked with dye.
 		{
 			Location targetBlock = player.getTargetBlock(null, 1000).getLocation(); // Select the target block.
 			if (targetBlock.getBlock().getType() != Material.AIR) // No pinging midair!
@@ -53,12 +61,12 @@ public class PingToolPlayerListener implements Listener {
 					//replacedBlocksState.add(replacedBlocksState.get(replacedBlockIndex));
 				}
 				for(Player p : plugin.getServer().getOnlinePlayers()) {
-					p.sendBlockChange(targetBlock, itemInHand.getItemTypeId(), itemInHand.getData()); // Turn it to the wool player was holding!
-					/*plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+					p.sendBlockChange(targetBlock, Material.WOOL, ((Dye)itemInHand).getColor().getWoolData()); // Turn it to the wool player was holding!
+					plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 						public void run() {
-							replaceBlock();
+							updateBlock();
 						}
-					}, 20L);*/
+					}, 20L);
 				}
 			}
 		}
