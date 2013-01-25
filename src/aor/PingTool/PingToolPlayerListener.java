@@ -16,6 +16,7 @@ import org.bukkit.material.MaterialData;
 public class PingToolPlayerListener implements Listener {	
 	public static PingTool plugin;
 	public static List<Location> replacedBlocks=new ArrayList<Location>();
+	public static final boolean ALLOW_PING_MIDAIR = true;
 	//public static List<BlockState> replacedBlocksState=new ArrayList<BlockState>();
 
 	public PingToolPlayerListener(PingTool instance) {
@@ -40,11 +41,15 @@ public class PingToolPlayerListener implements Listener {
 	public void onPlayerInteract(PlayerInteractEvent event){
 		Player player = event.getPlayer();
 		MaterialData itemInHand = player.getItemInHand().getData();
-		// Left clicking air or a block event:
+		// Right clicking air or a block event:
 		if ((event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) && itemInHand.getItemType() == Material.INK_SACK) // If they right clicked with dye.
 		{
 			Location targetBlock = player.getTargetBlock(null, 1000).getLocation(); // Select the target block.
-			if (targetBlock.getBlock().getType() != Material.AIR) // No pinging midair!
+			//player.sendMessage("Pinging " + targetBlock);
+			if (targetBlock.getBlock().getType() == Material.AIR) {
+				targetBlock = player.getTargetBlock(null, 10).getLocation();
+			}
+			if (targetBlock.getBlock().getType() != Material.AIR || ALLOW_PING_MIDAIR) // No pinging midair! (unless you can ping midair)
 			{
 				event.setCancelled(true);
 				pingBlock(plugin.getServer().getOnlinePlayers(), targetBlock, Material.WOOL, ((Dye)itemInHand).getColor().getWoolData(),  20L);
