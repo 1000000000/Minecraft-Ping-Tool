@@ -42,7 +42,7 @@ public class PingToolPlayerListener implements Listener {
 		Player player = event.getPlayer();
 		MaterialData itemInHand = player.getItemInHand().getData();
 		// Right clicking air or a block event:
-		if ((event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) && itemInHand.getItemType() == Material.INK_SACK) // If they right clicked with dye.
+		if ((event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) && itemInHand.getItemType() == Material.INK_SACK) // If they left clicked with dye.
 		{
 			Location targetBlock = player.getTargetBlock(null, 1000).getLocation(); // Select the target block.
 			//player.sendMessage("Pinging " + targetBlock);
