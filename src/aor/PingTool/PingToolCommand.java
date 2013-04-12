@@ -1,8 +1,12 @@
 package aor.PingTool;
 
+import org.bukkit.DyeColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.command.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class PingToolCommand implements CommandExecutor{
@@ -40,7 +44,14 @@ public class PingToolCommand implements CommandExecutor{
 		if(args.length == 1) {
 			color = args[0];
 		}
-		// ping it
+		byte woolData = 0;
+		try {
+			woolData = DyeColor.valueOf(color).getWoolData();
+		} catch(IllegalArgumentException e) {
+			sender.sendMessage("The color \"" + color + "\" does not exist");
+			return true;
+		}
+		plugin.pingBlock(plugin.getServer().getOnlinePlayers(), pos, Material.WOOL, woolData,  20L);
 		return true;
 	}
 }
