@@ -8,6 +8,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.material.Dye;
+import org.bukkit.material.MaterialData;
+import org.bukkit.material.Wool;
 
 public class PingToolCommand implements CommandExecutor{
 	private final PingTool plugin;
@@ -23,7 +26,6 @@ public class PingToolCommand implements CommandExecutor{
 			if(args.length < 3) sender.sendMessage("/ping from the console must specify cordinates");
 			return true;
 		}
-		if(args.length > 3) color = args[3];
 		if(args.length > 2){
 			try{
 				World w = plugin.getServer().getWorlds().get(0);
@@ -40,9 +42,24 @@ public class PingToolCommand implements CommandExecutor{
 			}
 		}else{
 			pos = ((Player)sender).getTargetBlock(null, 1000).getLocation();
+			if (pos.getBlock().getType() == Material.AIR) {
+				pos = ((Player)sender).getTargetBlock(null, 10).getLocation();
+			}
 		}
 		if(args.length == 1) {
 			color = args[0];
+		}
+		if(args.length > 3) {
+			color = args[3];
+		}
+		if((args.length == 0 || args.length == 3) && sender instanceof Player){
+			MaterialData itemInHand = ((Player)sender).getItemInHand().getData();
+			if(itemInHand instanceof Dye) {
+				color = ((Dye) itemInHand).getColor().name();
+			}
+			if(itemInHand instanceof Wool) {
+				color = ((Wool) itemInHand).getColor().name();
+			}
 		}
 		byte woolData = 0;
 		try {
