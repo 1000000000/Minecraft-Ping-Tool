@@ -10,11 +10,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.material.Dye;
 import org.bukkit.material.MaterialData;
 
 public class PingToolPlayerListener implements Listener {	
 	public static PingTool plugin;
 	public static List<Location> replacedBlocks=new ArrayList<Location>();
+	public static final boolean ALLOW_PING_MIDAIR = true;
 	//public static List<BlockState> replacedBlocksState=new ArrayList<BlockState>();
 
 	public PingToolPlayerListener(PingTool instance) {
@@ -27,35 +29,41 @@ public class PingToolPlayerListener implements Listener {
 			pingLocation.getBlock().getState().update(false); //forces existing block to become the block represented by blockState
 		}
 	}
+	
+	public static void updateBlock() {
+		Location blockLoc = replacedBlocks.remove(0);
+		if(!replacedBlocks.contains(blockLoc)){
+			blockLoc.getBlock().getState().update();
+		}
+	}
 
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event){
 		Player player = event.getPlayer();
 		MaterialData itemInHand = player.getItemInHand().getData();
-		// Left clicking air or a block event:
-		if ((event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) && itemInHand.getItemType() == Material.WOOL) // If they left clicked with wool.
+		// Right clicking air or a block event:
+		if ((event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) && itemInHand.getItemType() == Material.INK_SACK) // If they left clicked with dye.
 		{
 			Location targetBlock = player.getTargetBlock(null, 1000).getLocation(); // Select the target block.
-			if (targetBlock.getBlock().getType() != Material.AIR) // No pinging midair!
+			//player.sendMessage("Pinging " + targetBlock);
+			if (targetBlock.getBlock().getType() == Material.AIR) {
+				targetBlock = player.getTargetBlock(null, 10).getLocation();
+			}
+			if (targetBlock.getBlock().getType() != Material.AIR || ALLOW_PING_MIDAIR) // No pinging midair! (unless you can ping midair)
 			{
 				event.setCancelled(true);
-				pingBlock(plugin.getServer().getOnlinePlayers(), targetBlock, itemInHand.getItemTypeId(), itemInHand.getData(), (targetBlock == event.getClickedBlock() ? 2L : 0L), 20L);
+				pingBlock(plugin.getServer().getOnlinePlayers(), targetBlock, Material.WOOL, ((Dye)itemInHand).getColor().getWoolData(),  20L);
 			}
 		}
 	}
 	
-	public void pingBlock(final Player[] hallucinators, final Location blockLocation, final int material, final byte data, long initialDelay, long fakeBlockTimeSpan) {
-		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-			@Override
-			public void run() {
-				fakeBlock(hallucinators, blockLocation, material, data);
-			}
-		}, initialDelay);
+	public void pingBlock(final Player[] hallucinators, final Location blockLocation, final Material material, final byte data, long fakeBlockTimeSpan) {
+		fakeBlock(hallucinators, blockLocation, material, data);
 		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 			public void run() {
 				replaceBlock();
 			}
-		}, initialDelay+fakeBlockTimeSpan);
+		}, fakeBlockTimeSpan);
 		if(!replacedBlocks.contains(blockLocation)){
 			replacedBlocks.add(blockLocation);//store the block location
 		}
@@ -74,7 +82,7 @@ public class PingToolPlayerListener implements Listener {
 	 * after a certain amount of time has passed so a faked
 	 * block can remain indefinitely
 	 */
-	public void fakeBlock(Player[] hallucinators, Location blockLocation, int material, byte data) {
+	public void fakeBlock(Player[] hallucinators, Location blockLocation, Material material, byte data) {
 		for(Player p : hallucinators) {
 			if(!p.isOnline()) {
 				plugin.getLogger().fine("[PingPlugin] Trying to hallucinate to Player " + p + " who is not online");
