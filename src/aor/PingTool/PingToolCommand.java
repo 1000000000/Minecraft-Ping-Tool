@@ -17,7 +17,7 @@ public class PingToolCommand implements CommandExecutor{
 		Location pos;
 		if (!(sender instanceof Player)) {
 			if(args.length < 3) sender.sendMessage("/ping from the console must specify cordinates");
-			return false;
+			return true;
 		}
 		if(args.length > 3) color = args[3];
 		if(args.length > 2){
@@ -31,11 +31,14 @@ public class PingToolCommand implements CommandExecutor{
 				int z = Integer.parseInt(args[2]);
 				pos = new Location(w, x, y, z);
 			}catch(NumberFormatException e){
-				// cant parse cordinates
-				return false;
+				sender.sendMessage("Ping Coordinates must be integers");
+				return true;
 			}
 		}else{
 			pos = ((Player)sender).getTargetBlock(null, 1000).getLocation();
+		}
+		if(args.length == 1) {
+			color = args[0];
 		}
 		// ping it
 		return true;
