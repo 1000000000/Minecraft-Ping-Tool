@@ -33,6 +33,7 @@ public class PingTool extends JavaPlugin {
 		getLogger().info("Ping Tool .5 is enabled!");
         PluginManager pm = this.getServer().getPluginManager();
         pm.registerEvents(playerListener, this);
+        getCommand("ping").setExecutor(new PingToolCommand(this));
 	}
 	
 	public static void replaceBlock(){

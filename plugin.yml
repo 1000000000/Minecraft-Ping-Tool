@@ -1,3 +1,10 @@
 name: PingTool
 main: aor.PingTool.PingTool
 version: 1.0
+commands:
+  ping:
+      description: Ping location that player is looking at
+      usage: /ping [x y z] [color]
+      permission: pingtool.command
+      permission-message: You don't have permission to use /ping
+      
