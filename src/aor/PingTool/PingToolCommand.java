@@ -46,7 +46,7 @@ public class PingToolCommand implements CommandExecutor{
 		}
 		byte woolData = 0;
 		try {
-			woolData = DyeColor.valueOf(color).getWoolData();
+			woolData = DyeColor.valueOf(color.toUpperCase()).getWoolData();
 		} catch(IllegalArgumentException e) {
 			sender.sendMessage("The color \"" + color + "\" does not exist");
 			return true;
